@@ -30,7 +30,8 @@ print("first time of sending the data 1111")
 print("wait for authentication ")
 auth = s.recv(1024)
 print("get authentication: ", auth)
-if auth != b'Authentication successful':  # TODO - change this to xor of 9150 ^ 4966
+xor_ans = 1101011111001001  # 9150 ^ 4699 = 10001110111110 ^ 1001001011011 = 1101011111001001
+if auth != b'xor_ans':
     print('Authentication failed')
     s.close()
 else:
@@ -61,7 +62,8 @@ while send_again.lower() == 'y':
     # wait for authentication from receiver
     auth = s.recv(1024)
     print("auth: ", auth)
-    if auth != b'Authentication successful':
+    xor_ans = 1101011111001001  # 9150 ^ 4699 = 10001110111110 ^ 1001001011011 = 1101011111001001
+    if auth != b'xor_ans':
         print('Authentication failed')
         s.close()
     else:

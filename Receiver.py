@@ -39,7 +39,8 @@ part1_time = time.time() - start_time
 print("the time: ", part1_time)
 
 # Send back an authentication message
-conn.sendall(b'Authentication successful')
+xor_ans = 1101011111001001  # 9150 ^ 4699 = 10001110111110 ^ 1001001011011 = 1101011111001001
+conn.sendall(b'xor_ans')
 print("Authentication successful")
 
 # # Change the CC Algorithm to cubic
@@ -61,7 +62,8 @@ while True:
 
     if user_input.lower() == 'y':
         # Send a notification to the sender that the receiver is ready for another transfer
-        conn.sendall(b'Authentication successful')
+        xor_ans = 1101011111001001  # 9150 ^ 4699 = 10001110111110 ^ 1001001011011 = 1101011111001001
+        conn.sendall(b'xor_ans')
 
         # Change the CC Algorithm back to reno
         sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CONGESTION, 'reno'.encode())
@@ -88,9 +90,6 @@ while True:
         part2_time += time.time() - start_time
 
     elif user_input.lower() == 'n':
-        # Send an exit message to the sender
-        conn.sendall(b'GoodBy')
-
         # Print out the times for each part of the file
         print('Time to receive first part:', part1_time)
         print('Time to receive second part:', part2_time)
