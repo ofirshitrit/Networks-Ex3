@@ -31,7 +31,7 @@ while True:
     if _sum == HALF_SIZE:
         break
     received_data += data
-print("get the first data 1111")
+print("### Receive the 1st data  ### ")
 start_time = time.time()  # start measuring time
 
 # Save the time it took to receive the first part
@@ -53,7 +53,7 @@ start_time = time.time()  # start measuring time
 
 # Save the time it took to receive the second part
 part2_time = time.time() - start_time
-print("get the second data 2222")
+print("### Receive the 2nd data  ### ")
 
 # Check if the sender wants to send the file again
 while True:
@@ -71,7 +71,7 @@ while True:
 
         # Receive the first part of the file
         data = conn.recv(1310720)  # receive up to half of the data
-        print("Receive the first part 1111")
+        print("### Receive the 1st data  ### ")
         start_time = time.time()  # start measuring time
 
         # Save the time it took to receive the first part
@@ -83,7 +83,7 @@ while True:
 
         # Receive the second part of the file
         data = conn.recv(1048576)  # receive up to 1 MB of data
-        print("Receive the second part 2222")
+        print("### Receive the 1st data  ### ")
         start_time = time.time()  # start measuring time
 
         # Save the time it took to receive the second part
