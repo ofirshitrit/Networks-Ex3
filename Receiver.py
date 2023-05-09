@@ -76,6 +76,7 @@ while True:
     user_input = input('Do you want to receive the file again? (y/n): ')
 
     if user_input.lower() == 'y':
+        print("in the yessss")
         # Send a notification to the sender that the receiver is ready for another transfer
         xor_ans = 1101011111001001  # 9150 ^ 4699 = 10001110111110 ^ 1001001011011 = 1101011111001001
         conn.sendall(b'xor_ans')
