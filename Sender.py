@@ -8,7 +8,7 @@ with open(filename, 'r') as f:
 
 # set up TCP connection
 server_IP_address = 'localhost'
-server_port = 9999
+server_port = 8080
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print("socket created")
 try:
@@ -34,7 +34,7 @@ print("### Sent the 1st data ###")
 # wait for authentication from receiver
 print("wait for authentication ")
 auth = s.recv(1024)
-print("auth: ", auth.decode())
+print("get authentication: ", auth)
 xor_ans = 1101011111001001  # 9150 ^ 4699 = 10001110111110 ^ 1001001011011 = 1101011111001001
 if auth != b'xor_ans':
     print('Authentication failed')
@@ -75,7 +75,7 @@ while send_again.lower() == 'y':
 
     # wait for authentication from receiver
     auth = s.recv(1024)
-    print("auth: ", auth.decode())
+    print("auth: ", auth)
     xor_ans = 1101011111001001  # 9150 ^ 4699 = 10001110111110 ^ 1001001011011 = 1101011111001001
     if auth != b'xor_ans':
         print('Authentication failed')
@@ -99,6 +99,7 @@ while send_again.lower() == 'y':
     send_again = input('Send the file again? (y/n): ')
 
 # send exit message
-print("GoodBy!!! :)")
+s.sendall(b'GoodBy')
+
 # close the connection
 s.close()
