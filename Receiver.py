@@ -36,7 +36,7 @@ start_time = time.time()  # start measuring time
 received_data = b''
 _sum = 0
 while True:
-    data = conn.recv(1024)
+    data = conn.recv(2048)
     _sum += len(data)
     if _sum == HALF_SIZE:
         break
@@ -60,7 +60,7 @@ start_time = time.time()  # start measuring time
 received_data = b''
 _sum = 0
 while True:
-    data = conn.recv(1024)
+    data = conn.recv(2048)
     _sum += len(data)
     if _sum == HALF_SIZE:
         break
@@ -76,7 +76,6 @@ while True:
     user_input = input('Do you want to receive the file again? (y/n): ')
 
     if user_input.lower() == 'y':
-        print("in the yessss")
         # Send a notification to the sender that the receiver is ready for another transfer
         xor_ans = 1101011111001001  # 9150 ^ 4699 = 10001110111110 ^ 1001001011011 = 1101011111001001
         conn.sendall(b'xor_ans')
@@ -90,7 +89,7 @@ while True:
         received_data = b''
         _sum = 0
         while True:
-            data = conn.recv(1024)
+            data = conn.recv(2048)
             _sum += len(data)
             if _sum == HALF_SIZE:
                 break
@@ -109,7 +108,7 @@ while True:
         received_data = b''
         _sum = 0
         while True:
-            data = conn.recv(1024)
+            data = conn.recv(2048)
             _sum += len(data)
             if _sum == HALF_SIZE:
                 break
