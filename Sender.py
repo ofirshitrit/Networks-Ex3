@@ -19,12 +19,17 @@ except socket.error as err:
     s.close()
     exit()
 
-# send first half of the file
 data_size = len(file_data)
 half_size = data_size // 2
+
+# send first half of the file
 first_half = file_data[:half_size]
-s.sendall(first_half.encode())
-print("first time of sending the data 1111")
+sent_size = 0
+while sent_size < half_size:
+    data_to_send = first_half[sent_size:sent_size + 1024]
+    s.sendall(data_to_send.encode())
+    sent_size += len(data_to_send)
+print("### Sent the 1st data ###")
 
 # wait for authentication from receiver
 print("wait for authentication ")
@@ -39,11 +44,16 @@ else:
 
 # switch to cubic congestion control algorithm
 s.setsockopt(socket.IPPROTO_TCP, socket.TCP_CONGESTION, 'cubic'.encode())
-print("*** Algo: cubic ***")
+print("*** change Algo: CUBIC ***")
+
 # send second half of the file
 second_half = file_data[half_size:]
-s.sendall(second_half.encode())
-print("sent the data in the second time 2222")
+sent_size = 0
+while sent_size < len(second_half):
+    data_to_send = second_half[sent_size:sent_size+1024]
+    s.sendall(data_to_send.encode())
+    sent_size += len(data_to_send)
+print("### Sent the 2nd data ###")
 
 # ask user if they want to send the file again
 send_again = input('Send the file again? (y/n): ')
@@ -53,11 +63,15 @@ while send_again.lower() == 'y':
 
     # switch back to reno congestion control algorithm
     s.setsockopt(socket.IPPROTO_TCP, socket.TCP_CONGESTION, 'reno'.encode())
-    print("*** Algo: reno ***")
+    print("*** change Algo: RENO ***")
 
     # send first half of the file again
-    s.sendall(first_half.encode())
-    print("send the first time 1111")
+    sent_size = 0
+    while sent_size < half_size:
+        data_to_send = first_half[sent_size:sent_size + 1024]
+        s.sendall(data_to_send.encode())
+        sent_size += len(data_to_send)
+    print("### Sent the 1st data ###")
 
     # wait for authentication from receiver
     auth = s.recv(1024)
@@ -71,10 +85,15 @@ while send_again.lower() == 'y':
 
     # switch to cubic congestion control algorithm
     s.setsockopt(socket.IPPROTO_TCP, socket.TCP_CONGESTION, 'cubic'.encode())
+    print("*** change Algo: CUBIC ***")
 
     # send second half of the file again
-    s.sendall(second_half.encode())
-    print("send the second time")
+    sent_size = 0
+    while sent_size < len(second_half):
+        data_to_send = second_half[sent_size:sent_size + 1024]
+        s.sendall(data_to_send.encode())
+        sent_size += len(data_to_send)
+    print("### Sent the 2nd data ###")
 
     # ask user if they want to send the file again
     send_again = input('Send the file again? (y/n): ')
