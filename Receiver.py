@@ -3,7 +3,7 @@ import time
 
 # Define the IP address and port number for the receiver
 HOST = 'localhost'
-PORT = 8080
+PORT = 9999
 HALF_SIZE = 1310720
 
 # Create a socket object
@@ -51,6 +51,7 @@ while True:
     conn.sendall(b'xor_ans')
     print("Authentication successful")
     conn.close()
+    print("connection close")
 
     conn, addr = sock.accept()
     print(f'Connected by {addr}')
@@ -70,12 +71,13 @@ while True:
     cubic_time.append(part2_time)
     number_of_sends += 1
     conn.close()
+    print("connection close")
 
     conn, addr = sock.accept()
     print(f'Connected by {addr}')
 
-    finish = conn.recv(10).decode()
-    if finish == "Stop sending":
+    finish_sending = conn.recv(10).decode()
+    if finish_sending != "keep Send":
         print("Times: ")
         # Print out the times for each part of the file
         for i in range(number_of_sends):
@@ -91,3 +93,4 @@ while True:
         break
     else:
         conn.close()
+        print("connection close")

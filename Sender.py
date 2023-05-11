@@ -1,7 +1,7 @@
 import socket
 
 HOST = 'localhost'
-PORT = 8080
+PORT = 9999
 # read the file
 filename = 'file.txt'
 with open(filename, 'r') as f:
@@ -27,6 +27,7 @@ while True:
         sock.sendall(data_to_send.encode())
         sent_size += len(data_to_send)
     sock.close()
+    print("socket closes")
     print("### Sent the 1st data ###")
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -39,10 +40,11 @@ while True:
     auth = sock.recv(10)
     xor_ans = 9150 ^ 4669  # 9150 ^ 4699 = 10001110111110 ^ 1001001011011 = 1101011111001001
     print("auth: ", auth.decode())
-    print("ans_xor: ", xor_ans )
+    print("ans_xor: ", xor_ans)
     if auth != b'xor_ans':
         print('Authentication failed')
         sock.close()
+        print("socket closes")
         break
     else:
         print('Authentication successful')
@@ -62,6 +64,7 @@ while True:
             sent_size += len(data_to_send)
         print("### Sent the 2nd data ###")
         sock.close()
+        print("socket closes")
 
     # ask user if they want to send the file again
     send_again = input('Send the file again? (y/n): ')
@@ -75,10 +78,14 @@ while True:
         print("GoodBy!!! :)")
         # close the connection
         sock.close()
+        print("socket closes")
+        break
+
     else:
-        sock.sendall("keep Send".encode())
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         print("socket created")
         sock.connect((HOST, PORT))
         print("connection established")
+        sock.sendall("keep Send".encode())
         sock.close()
+        print("socket closes")
