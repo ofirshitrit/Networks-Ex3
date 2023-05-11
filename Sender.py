@@ -35,6 +35,10 @@ while True:
     # set up TCP connection
     sock = create_connection()
 
+    # Change the CC Algorithm back to reno
+    sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CONGESTION, 'reno'.encode())
+    print("*** change Algo: RENO ***")
+
     # send first half of the file
     send_file()
     print("### Sent the 1st data ###")
@@ -82,8 +86,8 @@ while True:
         print("GoodBye!!! :)")
 
         # close the connection
-        sock.close()
         print("socket closes")
+        sock.close()
         break
 
     else:

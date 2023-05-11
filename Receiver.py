@@ -41,7 +41,7 @@ def create_socket() -> socket:
 
 def receive_file():
     while True:
-        data = conn.recv(2048)
+        data = conn.recv(4096)
         if len(data) <= 0:
             break
 
@@ -97,8 +97,11 @@ while True:
 
     finish_sending = conn.recv(10).decode()
     if finish_sending != "keep Send":
+        print("GoodBye :)")
         print_times()
+        conn.close()
         break
     else:
         conn.close()
         print("connection close")
+
