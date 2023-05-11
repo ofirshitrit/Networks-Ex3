@@ -13,27 +13,36 @@ half_size = data_size // 2
 first_half = file_data[:half_size]
 second_half = file_data[half_size:]
 
-while True:
+
+def create_connection() -> socket:
     # set up TCP connection
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print("socket created")
     sock.connect((HOST, PORT))
     print("connection established")
+    return sock
 
-    # send first half of the file
+
+def send_file():
     sent_size = 0
     while sent_size < half_size:
         data_to_send = first_half[sent_size:sent_size + 1024]
         sock.sendall(data_to_send.encode())
         sent_size += len(data_to_send)
+
+
+while True:
+    # set up TCP connection
+    sock = create_connection()
+
+    # send first half of the file
+    send_file()
+    print("### Sent the 1st data ###")
     sock.close()
     print("socket closes")
-    print("### Sent the 1st data ###")
 
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    print("socket created")
-    sock.connect((HOST, PORT))
-    print("connection established")
+    # set up TCP connection
+    sock = create_connection()
 
     # wait for authentication from receiver
     print("wait for authentication ")
@@ -48,20 +57,16 @@ while True:
         break
     else:
         print('Authentication successful')
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print("socket created")
-        sock.connect((HOST, PORT))
-        print("connection established")
+
+        # set up TCP connection
+        sock = create_connection()
 
         # switch to cubic congestion control algorithm
         sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CONGESTION, 'cubic'.encode())
         print("*** change Algo: CUBIC ***")
+
         # send second half of the file
-        sent_size = 0
-        while sent_size < len(second_half):
-            data_to_send = second_half[sent_size:sent_size + 1024]
-            sock.sendall(data_to_send.encode())
-            sent_size += len(data_to_send)
+        send_file()
         print("### Sent the 2nd data ###")
         sock.close()
         print("socket closes")
@@ -69,23 +74,22 @@ while True:
     # ask user if they want to send the file again
     send_again = input('Send the file again? (y/n): ')
     if send_again.lower() != 'y':
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print("socket created")
-        sock.connect((HOST, PORT))
-        print("connection established")
+        # set up TCP connection
+        sock = create_connection()
+
         # send exit message
         sock.sendall("Stop sending".encode())
-        print("GoodBy!!! :)")
+        print("GoodBye!!! :)")
+
         # close the connection
         sock.close()
         print("socket closes")
         break
 
     else:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print("socket created")
-        sock.connect((HOST, PORT))
-        print("connection established")
+        # set up TCP connection
+        sock = create_connection()
+
         sock.sendall("keep Send".encode())
         sock.close()
         print("socket closes")
