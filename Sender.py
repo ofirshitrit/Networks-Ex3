@@ -1,7 +1,7 @@
 import socket
 
 HOST = 'localhost'
-PORT = 9999
+PORT = 8080
 # read the file
 filename = 'file.txt'
 with open(filename, 'r') as f:
@@ -14,7 +14,7 @@ first_half = file_data[:half_size]
 second_half = file_data[half_size:]
 
 
-def create_connection() -> socket:
+def create_socket() -> socket:
     # set up TCP connection
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print("socket created")
@@ -23,37 +23,29 @@ def create_connection() -> socket:
     return sock
 
 
-def send_file():
-    sent_size = 0
-    while sent_size < half_size:
-        data_to_send = first_half[sent_size:sent_size + 1024]
-        sock.sendall(data_to_send.encode())
-        sent_size += len(data_to_send)
-
-
 while True:
     # set up TCP connection
-    sock = create_connection()
+    sock = create_socket()
 
     # Change the CC Algorithm back to reno
     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CONGESTION, 'reno'.encode())
     print("*** change Algo: RENO ***")
 
     # send first half of the file
-    send_file()
+    sock.sendall(first_half.encode())
     print("### Sent the 1st data ###")
     sock.close()
     print("socket closes")
 
     # set up TCP connection
-    sock = create_connection()
+    sock = create_socket()
 
     # wait for authentication from receiver
     print("wait for authentication ")
-    auth = sock.recv(10)
-    xor_ans = 9150 ^ 4669  # 9150 ^ 4699 = 10001110111110 ^ 1001001011011 = 1101011111001001
-    print("auth: ", auth.decode())
-    print("ans_xor: ", xor_ans)
+    auth = sock.recv(1024)
+    xor_ans = 9150 ^ 4699  # 9150 ^ 4699 = 10001110111110 ^ 1001001011011 = 1101011111001001
+    print("auth: ", auth)
+    print("xor_ans: ", xor_ans)
     if auth != b'xor_ans':
         print('Authentication failed')
         sock.close()
@@ -63,37 +55,33 @@ while True:
         print('Authentication successful')
 
         # set up TCP connection
-        sock = create_connection()
+        sock = create_socket()
 
         # switch to cubic congestion control algorithm
         sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CONGESTION, 'cubic'.encode())
         print("*** change Algo: CUBIC ***")
 
         # send second half of the file
-        send_file()
+        sock.sendall(second_half.encode())
         print("### Sent the 2nd data ###")
         sock.close()
         print("socket closes")
+        print("")
 
     # ask user if they want to send the file again
     send_again = input('Send the file again? (y/n): ')
     if send_again.lower() != 'y':
-        # set up TCP connection
-        sock = create_connection()
-
+        sock = create_socket()
         # send exit message
         sock.sendall("Stop sending".encode())
-        print("GoodBye!!! :)")
-
+        print("GoodBye!!!")
         # close the connection
         print("socket closes")
         sock.close()
         break
 
     else:
-        # set up TCP connection
-        sock = create_connection()
-
+        sock = create_socket()
         sock.sendall("keep Send".encode())
         sock.close()
         print("socket closes")

@@ -2,7 +2,7 @@ import socket
 import time
 
 HOST = 'localhost'
-PORT = 9999
+PORT = 8080
 HALF_SIZE = 1310720
 reno_time = []
 cubic_time = []
@@ -13,8 +13,8 @@ def print_times():
     print("Times: ")
     # Print out the times for each part of the file
     for i in range(number_of_sends):
-        print('Time to receive first part with RENO:', reno_time[i])
-        print('Time to receive second part with CUBIC:', cubic_time[i])
+        print('Time to receive first part with RENO:', i, reno_time[i])
+        print('Time to receive second part with CUBIC:', i, cubic_time[i])
 
     print("Average: ")
     # Calculate the average time for each part of the file
@@ -41,67 +41,65 @@ def create_socket() -> socket:
 
 def receive_file():
     while True:
-        data = conn.recv(4096)
+        data = conn.recv(HALF_SIZE)
         if len(data) <= 0:
             break
 
 
-sock = create_socket()
+with create_socket() as sock:
+    while True:
+        # Wait for a connection
+        conn, addr = sock.accept()
+        print(f'Connected by {addr}')
 
-while True:
-    # Wait for a connection
-    conn, addr = sock.accept()
-    print(f'Connected by {addr}')
+        # Change the CC Algorithm back to reno
+        conn.setsockopt(socket.IPPROTO_TCP, socket.TCP_CONGESTION, 'reno'.encode())
+        print("*** change Algo: RENO ***")
 
-    # Change the CC Algorithm back to reno
-    conn.setsockopt(socket.IPPROTO_TCP, socket.TCP_CONGESTION, 'reno'.encode())
-    print("*** change Algo: RENO ***")
+        # Receive the first part of the file
+        start_time = time.time()  # start measuring time
+        receive_file()
+        print("### Receive the 1st data  ### ")
+        part1_time = time.time() - start_time
+        reno_time.append(part1_time)
 
-    # Receive the first part of the file
-    start_time = time.time()  # start measuring time
-    receive_file()
-    print("### Receive the 1st data  ### ")
-    part1_time = time.time() - start_time
-    reno_time.append(part1_time)
+        # Wait for a connection
+        conn, addr = sock.accept()
+        print(f'Connected by {addr}')
 
-    # Wait for a connection
-    conn, addr = sock.accept()
-    print(f'Connected by {addr}')
-
-    # Send back an authentication message
-    xor_ans = 9150 ^ 4699  # 9150 ^ 4699 = 10001110111110 ^ 1001001011011 = 1101011111001001
-    conn.sendall(b'xor_ans')
-    print("Authentication sent")
-    conn.close()
-    print("connection close")
-
-    conn, addr = sock.accept()
-    print(f'Connected by {addr}')
-
-    # Change the CC Algorithm to cubic
-    conn.setsockopt(socket.IPPROTO_TCP, socket.TCP_CONGESTION, 'cubic'.encode())
-    print("*** change Algo: CUBIC ***")
-
-    # Receive the second part of the file
-    start_time = time.time()  # start measuring time
-    receive_file()
-    part2_time = time.time() - start_time
-    print("### Receive the 2nd data  ### ")
-    cubic_time.append(part2_time)
-    number_of_sends += 1
-    conn.close()
-    print("connection close")
-
-    conn, addr = sock.accept()
-    print(f'Connected by {addr}')
-
-    finish_sending = conn.recv(10).decode()
-    if finish_sending != "keep Send":
-        print("GoodBye :)")
-        print_times()
-        conn.close()
-        break
-    else:
+        # Send back an authentication message
+        xor_ans = 9150 ^ 4699  # 9150 ^ 4699 = 10001110111110 ^ 1001001011011 = 1101011111001001
+        conn.sendall(b'xor_ans')
+        print("Authentication sent")
         conn.close()
         print("connection close")
+
+        conn, addr = sock.accept()
+        print(f'Connected by {addr}')
+
+        # Change the CC Algorithm to cubic
+        conn.setsockopt(socket.IPPROTO_TCP, socket.TCP_CONGESTION, 'cubic'.encode())
+        print("*** change Algo: CUBIC ***")
+
+        # Receive the second part of the file
+        start_time = time.time()  # start measuring time
+        receive_file()
+        part2_time = time.time() - start_time
+        print("### Receive the 2nd data  ### ")
+        cubic_time.append(part2_time)
+        number_of_sends += 1
+        print("")
+
+        conn, addr = sock.accept()
+        print(f'Connected by {addr}')
+
+        finish_sending = conn.recv(1024).decode()
+        if finish_sending == "Stop sending":
+            print("GoodBye :)")
+            print_times()
+            break
+        else:
+            print("Keep sending")
+            conn.close()
+            print("connection close")
 
