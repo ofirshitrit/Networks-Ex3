@@ -13,8 +13,8 @@ def print_times():
     print("Times: ")
     # Print out the times for each part of the file
     for i in range(number_of_sends):
-        print('Time to receive first part with RENO:', i, reno_time[i])
-        print('Time to receive second part with CUBIC:', i, cubic_time[i])
+        print('Time to receive first part with RENO:', i+1, reno_time[i])
+        print('Time to receive second part with CUBIC:', i+1, cubic_time[i])
 
     print("Average: ")
     # Calculate the average time for each part of the file
@@ -40,17 +40,22 @@ def create_socket() -> socket:
 
 
 def receive_file():
-    while True:
-        data = conn.recv(HALF_SIZE)
-        if len(data) <= 0:
+    i = 0
+    data = b""
+    while len(data.decode()) < HALF_SIZE - 4:
+        i += 1
+        print("still getting", i)
+        container = conn.recv(2048)
+        if not container:
             break
+        data += container
 
 
 with create_socket() as sock:
+    # Wait for a connection
+    conn, addr = sock.accept()
+    print(f'Connected by {addr}')
     while True:
-        # Wait for a connection
-        conn, addr = sock.accept()
-        print(f'Connected by {addr}')
 
         # Change the CC Algorithm back to reno
         conn.setsockopt(socket.IPPROTO_TCP, socket.TCP_CONGESTION, 'reno'.encode())
@@ -63,19 +68,10 @@ with create_socket() as sock:
         part1_time = time.time() - start_time
         reno_time.append(part1_time)
 
-        # Wait for a connection
-        conn, addr = sock.accept()
-        print(f'Connected by {addr}')
-
         # Send back an authentication message
         xor_ans = 9150 ^ 4699  # 9150 ^ 4699 = 10001110111110 ^ 1001001011011 = 1101011111001001
         conn.sendall(b'xor_ans')
         print("Authentication sent")
-        conn.close()
-        print("connection close")
-
-        conn, addr = sock.accept()
-        print(f'Connected by {addr}')
 
         # Change the CC Algorithm to cubic
         conn.setsockopt(socket.IPPROTO_TCP, socket.TCP_CONGESTION, 'cubic'.encode())
@@ -90,16 +86,10 @@ with create_socket() as sock:
         number_of_sends += 1
         print("")
 
-        conn, addr = sock.accept()
-        print(f'Connected by {addr}')
-
         finish_sending = conn.recv(1024).decode()
         if finish_sending == "Stop sending":
             print("GoodBye :)")
             print_times()
             break
-        else:
-            print("Keep sending")
-            conn.close()
-            print("connection close")
+
 

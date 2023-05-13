@@ -23,10 +23,14 @@ def create_socket() -> socket:
     return sock
 
 
-while True:
-    # set up TCP connection
-    sock = create_socket()
+# set up TCP connection
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+print("socket created")
+sock.connect((HOST, PORT))
+print("connection established")
 
+
+while True:
     # Change the CC Algorithm back to reno
     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CONGESTION, 'reno'.encode())
     print("*** change Algo: RENO ***")
@@ -34,17 +38,12 @@ while True:
     # send first half of the file
     sock.sendall(first_half.encode())
     print("### Sent the 1st data ###")
-    sock.close()
-    print("socket closes")
-
-    # set up TCP connection
-    sock = create_socket()
 
     # wait for authentication from receiver
     print("wait for authentication ")
     auth = sock.recv(1024)
     xor_ans = 9150 ^ 4699  # 9150 ^ 4699 = 10001110111110 ^ 1001001011011 = 1101011111001001
-    print("auth: ", auth)
+    print("auth: ", auth.decode())
     print("xor_ans: ", xor_ans)
     if auth != b'xor_ans':
         print('Authentication failed')
@@ -54,9 +53,6 @@ while True:
     else:
         print('Authentication successful')
 
-        # set up TCP connection
-        sock = create_socket()
-
         # switch to cubic congestion control algorithm
         sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CONGESTION, 'cubic'.encode())
         print("*** change Algo: CUBIC ***")
@@ -64,14 +60,11 @@ while True:
         # send second half of the file
         sock.sendall(second_half.encode())
         print("### Sent the 2nd data ###")
-        sock.close()
-        print("socket closes")
         print("")
 
     # ask user if they want to send the file again
     send_again = input('Send the file again? (y/n): ')
     if send_again.lower() != 'y':
-        sock = create_socket()
         # send exit message
         sock.sendall("Stop sending".encode())
         print("GoodBye!!!")
@@ -81,7 +74,5 @@ while True:
         break
 
     else:
-        sock = create_socket()
-        sock.sendall("keep Send".encode())
-        sock.close()
-        print("socket closes")
+        sock.sendall("keep Sending".encode())
+        print("Keep sending")
