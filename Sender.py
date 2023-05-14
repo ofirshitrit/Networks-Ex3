@@ -13,16 +13,6 @@ half_size = data_size // 2
 first_half = file_data[:half_size]
 second_half = file_data[half_size:]
 
-
-def create_socket() -> socket:
-    # set up TCP connection
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    print("socket created")
-    sock.connect((HOST, PORT))
-    print("connection established")
-    return sock
-
-
 # set up TCP connection
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print("socket created")
