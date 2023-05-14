@@ -25,12 +25,12 @@ def print_times():
 
 
 def receive_file():
-    sum = b""
-    while len(sum.decode()) < HALF_SIZE:
+    _bytes = b""
+    while len(_bytes.decode()) < HALF_SIZE:
         data = conn.recv(2048)
         if not data:
             break
-        sum += data
+        _bytes += data
 
 
 # Create a socket object
