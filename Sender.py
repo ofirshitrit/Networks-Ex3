@@ -19,14 +19,21 @@ print("socket created")
 sock.connect((HOST, PORT))
 print("connection established")
 
+# sets the size of the buffer that the socket will use to send data
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 32768)
+# set the TCP_NODELAY option to 1 to disables the Nagle algorithm for this socket
+sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
 while True:
     # Change the CC Algorithm back to reno
     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CONGESTION, 'reno'.encode())
     print("*** change Algo: RENO ***")
 
-    # send first half of the file
+    # send first half of the fileS
     sock.sendall(first_half.encode())
+    # sent = 0
+    # while sent < len(first_half):
+    #     sent += sock.send(first_half.encode())
     print("### Sent the 1st data ###")
 
     # wait for authentication from receiver
@@ -49,6 +56,9 @@ while True:
 
         # send second half of the file
         sock.sendall(second_half.encode())
+        # sent = 0
+        # while sent < len(second_half):
+        #     sent += sock.send(second_half.encode())
         print("### Sent the 2nd data ###")
         print("")
 

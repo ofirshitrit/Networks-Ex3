@@ -18,8 +18,8 @@ def print_times():
 
     print("Average: ")
     # Calculate the average time for each part of the file
-    avg_part1_time = part1_time / 5
-    avg_part2_time = part2_time / 5
+    avg_part1_time = sum(reno_time) / len(reno_time)
+    avg_part2_time = sum(cubic_time) / len(cubic_time)
     print('Average time to receive first part with RENO:', avg_part1_time)
     print('Average time to receive second part with CUBIC:', avg_part2_time)
 
@@ -36,6 +36,9 @@ def receive_file():
 # Create a socket object
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print("Create a socket succeed")
+
+# Set TCP_NODELAY to improve reliability
+sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
 # Bind the socket to a specific address and port number
 sock.bind((HOST, PORT))
